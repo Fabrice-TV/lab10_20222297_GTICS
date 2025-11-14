@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel General - Multiverso</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-buttons a {
+            background: white;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-buttons a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-description {
+            font-size: 0.85em;
+            color: #999;
+            line-height: 1.4;
+        }
+
+        .charts-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .charts-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .refresh-button {
+            display: block;
+            margin: 0 auto 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .refresh-button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .timestamp {
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>📊 Panel General del Multiverso</h1>
+            <p>Estadísticas unificadas de todas las APIs y servicios</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="index.html">🌌 Exploradores del Multiverso</a>
+            <a href="dashboard.html" style="background: #667eea; color: white;">📊 Panel General</a>
+        </div>
+
+        <button class="refresh-button" onclick="loadDashboardData()">🔄 Actualizar Estadísticas</button>
+
+        <div id="loading" class="loading" style="display:none;">Cargando estadísticas del multiverso</div>
+
+        <div id="stats-container" style="display:none;">
+            <!-- Tarjetas de estadísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-icon">🎭</span>
+                    <div class="stat-label">Total de Personajes Consultados</div>
+                    <div class="stat-value" id="stat-personajes-total">0</div>
+                    <div class="stat-description">Personajes disponibles en las APIs de Rick & Morty y Demon Slayer</div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">👤</span>
+                    <div class="stat-label">Exploradores Iniciales Generados</div>
+                    <div class="stat-value" id="stat-exploradores-iniciales">0</div>
+                    <div class="stat-description">Agentes generados desde RandomUser API en la carga inicial</div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">🎯</span>
+                    <div class="stat-label">Nuevos Exploradores Reclutados</div>
+                    <div class="stat-value" id="stat-exploradores-reclutados">0</div>
+                    <div class="stat-description">Agentes reclutados dinámicamente desde RandomUser API</div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">🎓</span>
+                    <div class="stat-label">Becarios Almacenados</div>
+                    <div class="stat-value" id="stat-becarios">0</div>
+                    <div class="stat-description">Practicantes registrados en la base de datos propia</div>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">🔗</span>
+                    <div class="stat-label">Total de Consultas a APIs</div>
+                    <div class="stat-value" id="stat-consultas">0</div>
+                    <div class="stat-description">Número total de llamadas realizadas a todas las APIs externas</div>
+                </div>
+            </div>
+
+            <!-- Sección de gráficos -->
+            <div class="charts-section">
+                <h2>📈 Visualización de Datos del Multiverso</h2>
+                <div class="charts-grid">
+                    <div>
+                        <h3 style="text-align: center; color: #667eea; margin-bottom: 15px;">Personajes por Universo</h3>
+                        <div class="chart-container">
+                            <canvas id="universesChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="text-align: center; color: #667eea; margin-bottom: 15px;">Exploradores del Multiverso</h3>
+                        <div class="chart-container">
+                            <canvas id="explorersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles adicionales -->
+            <div class="charts-section">
+                <h2>📋 Detalles por Universo</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">🛸</span>
+                        <div class="stat-label">Rick & Morty</div>
+                        <div class="stat-value" id="stat-rickmorty">0</div>
+                        <div class="stat-description">Personajes disponibles en la API de Rick and Morty</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-icon">⚔️</span>
+                        <div class="stat-label">Demon Slayer</div>
+                        <div class="stat-value" id="stat-demonslayer">0</div>
+                        <div class="stat-description">Personajes disponibles en la API de Demon Slayer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timestamp" id="timestamp"></div>
+        </div>
+    </div>
+
+    <script>
+        let universesChart = null;
+        let explorersChart = null;
+
+        // Cargar datos del dashboard al iniciar
+        window.addEventListener('DOMContentLoaded', function() {
+            loadDashboardData();
+        });
+
+        function loadDashboardData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('stats-container').style.display = 'none';
+
+            fetch('/api/dashboard')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Dashboard data:', data);
+                    
+                    // Actualizar estadísticas
+                    document.getElementById('stat-personajes-total').textContent = 
+                        data.personajesPorUniverso.total.toLocaleString();
+                    document.getElementById('stat-exploradores-iniciales').textContent = 
+                        data.exploradoresIniciales.toLocaleString();
+                    document.getElementById('stat-exploradores-reclutados').textContent = 
+                        data.exploradoresReclutados.toLocaleString();
+                    document.getElementById('stat-becarios').textContent = 
+                        data.becariosAlmacenados.toLocaleString();
+                    document.getElementById('stat-consultas').textContent = 
+                        data.consultasTotales.toLocaleString();
+                    
+                    // Actualizar detalles por universo
+                    document.getElementById('stat-rickmorty').textContent = 
+                        data.personajesPorUniverso.rickAndMorty.toLocaleString();
+                    document.getElementById('stat-demonslayer').textContent = 
+                        data.personajesPorUniverso.demonSlayer.toLocaleString();
+
+                    // Crear/actualizar gráficos
+                    createCharts(data);
+
+                    // Actualizar timestamp
+                    const now = new Date();
+                    document.getElementById('timestamp').textContent = 
+                        `Última actualización: ${now.toLocaleString('es-ES')}`;
+
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('stats-container').style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error al cargar estadísticas:', error);
+                    document.getElementById('loading').innerHTML = 
+                        '<div style="color: #e74c3c;">Error al cargar las estadísticas. Por favor, intenta de nuevo.</div>';
+                });
+        }
+
+        function createCharts(data) {
+            // Destruir gráficos existentes
+            if (universesChart) universesChart.destroy();
+            if (explorersChart) explorersChart.destroy();
+
+            // Gráfico de personajes por universo
+            const universesCtx = document.getElementById('universesChart').getContext('2d');
+            universesChart = new Chart(universesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.graficoData.universosLabels,
+                    datasets: [{
+                        label: 'Personajes',
+                        data: data.graficoData.universosValues,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(237, 100, 166, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(237, 100, 166, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 14
+                                },
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.toLocaleString() + ' personajes';
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de exploradores
+            const explorersCtx = document.getElementById('explorersChart').getContext('2d');
+            explorersChart = new Chart(explorersCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.graficoData.exploradoresLabels,
+                    datasets: [{
+                        label: 'Cantidad de Exploradores',
+                        data: data.graficoData.exploradoresValues,
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.8)',
+                            'rgba(52, 152, 219, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(52, 152, 219, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y.toLocaleString() + ' exploradores';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

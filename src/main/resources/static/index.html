@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploradores del Multiverso</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🌌 Exploradores del Multiverso 🌌</h1>
+
+        <!-- Navegación -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <a href="index.html" style="background: white; color: #667eea; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 0 10px; display: inline-block; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">🌌 Exploradores del Multiverso</a>
+            <a href="dashboard.html" style="background: white; color: #667eea; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: bold; margin: 0 10px; display: inline-block; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">📊 Panel General</a>
+        </div>
+
+        <!-- Seccion Rick y Morty  -->
+        <div class="universe-section">
+            <div class="universe-header">
+                <h2 class="universe-title">🛸 Rick and Morty</h2>
+                <span class="character-count" id="rm-count">Total: 0</span>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="rm-filter-name" placeholder="Buscar por nombre">
+                <select id="rm-filter-status">
+                    <option value="">Todos los estados</option>
+                    <option value="alive">Vivo</option>
+                    <option value="dead">Muerto</option>
+                    <option value="unknown">Desconocido</option>
+                </select>
+                <select id="rm-filter-species">
+                    <option value="">Todas las especies</option>
+                    <option value="Human">Humano</option>
+                    <option value="Alien">Alien</option>
+                    <option value="Robot">Robot</option>
+                </select>
+                <button onclick="loadRickAndMorty(1, true)">Buscar</button>
+                <button onclick="clearRickAndMortyFilters()">Limpiar</button>
+            </div>
+
+            <div id="rm-loading" class="loading" style="display:none;">Cargando personajes...</div>
+            <div id="rm-grid" class="character-grid"></div>
+            
+            <div class="pagination">
+                <button id="rm-prev" onclick="loadRickAndMorty(currentRMPage - 1)">Anterior</button>
+                <span id="rm-page-info">Página 1</span>
+                <button id="rm-next" onclick="loadRickAndMorty(currentRMPage + 1)">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Seccion Demon Slayer  -->
+        <div class="universe-section">
+            <div class="universe-header">
+                <h2 class="universe-title">⚔️ Demon Slayer</h2>
+                <span class="character-count" id="demonslayer-count">Total: 0</span>
+            </div>
+            
+            <div class="filters">
+                <input type="text" id="demonslayer-filter-name" placeholder="Buscar por nombre">
+                <button onclick="loadDemonSlayer(1, true)">Buscar</button>
+                <button onclick="clearDemonSlayerFilters()">Limpiar</button>
+            </div>
+
+            <div id="demonslayer-loading" class="loading" style="display:none;">Cargando personajes...</div>
+            <div id="demonslayer-grid" class="character-grid"></div>
+            
+            <div class="pagination">
+                <button id="demonslayer-prev" onclick="loadDemonSlayer(currentDemonSlayerPage - 1)">Anterior</button>
+                <span id="demonslayer-page-info">Página 1</span>
+                <button id="demonslayer-next" onclick="loadDemonSlayer(currentDemonSlayerPage + 1)">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Seccion Exploradores Multiversales  -->
+        <div class="universe-section">
+            <div class="universe-header">
+                <h2 class="universe-title">🚀 Generador de Exploradores Multiversales</h2>
+                <span class="character-count" id="explorers-count">Total: 0 agentes</span>
+            </div>
+            
+            <div class="filters">
+                <button onclick="recruitNewExplorers()" style="background-color: #2ecc71; font-weight: bold;">🎯 Reclutar Nuevo Agente</button>
+                <button onclick="recruitMultipleExplorers()" style="background-color: #3498db;">👥 Reclutar 5 Agentes</button>
+            </div>
+
+            <div id="explorers-loading" class="loading" style="display:none;">Reclutando exploradores...</div>
+            <div id="explorers-grid" class="character-grid"></div>
+        </div>
+
+        <!-- Gestión de Practicantes -->
+        <div class="universe-section">
+            <div class="universe-header">
+                <h2 class="universe-title">🎓 Gestión de Practicantes del Multiverso</h2>
+                <span class="character-count" id="practicantes-count">Total: 0 practicantes</span>
+            </div>
+            
+            <div class="filters">
+                <button onclick="mostrarFormularioCrear()" style="background-color: #27ae60; font-weight: bold;">➕ Nuevo Practicante</button>
+                <select id="filtro-estado" onchange="filtrarPorEstado()">
+                    <option value="">Todos los estados</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Egresado">Egresado</option>
+                </select>
+            </div>
+
+            <div id="practicantes-loading" class="loading" style="display:none;">Cargando practicantes...</div>
+            
+            <!-- Formulario para crear/editar -->
+            <div id="formulario-practicante" style="display:none; background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h3 id="form-title">Nuevo Practicante</h3>
+                <form id="practicante-form" onsubmit="guardarPracticante(event)">
+                    <input type="hidden" id="practicante-id">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Nombre Completo *</label>
+                            <input type="text" id="nombre-completo" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Carrera *</label>
+                            <input type="text" id="carrera" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Universidad *</label>
+                            <input type="text" id="universidad" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Email *</label>
+                            <input type="email" id="email" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">País *</label>
+                            <input type="text" id="pais" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #333;">Estado *</label>
+                            <select id="estado" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="">Seleccionar...</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Egresado">Egresado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button type="submit" style="background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                            💾 Guardar
+                        </button>
+                        <button type="button" onclick="cancelarFormulario()" style="background-color: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                            ❌ Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="practicantes-grid" class="character-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="characterModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Variables para controlar la paginacion
+        let currentRMPage = 1;
+        let currentDemonSlayerPage = 1;
+        let totalRMPages = 1;
+        const itemsPerPage = 20;
+
+        // Variables para exploradores
+        let allExplorers = [];
+        
+        // Rangos y descripciones para exploradores
+        const explorerRanks = [
+            { rank: "Comandante Supremo", description: "Líder de expediciones interdimensionales, con acceso a todos los portales del multiverso" },
+            { rank: "Capitán Dimensional", description: "Especialista en navegación entre realidades paralelas y coordinación de equipos" },
+            { rank: "Explorador Élite", description: "Veterano con más de 100 misiones completadas en diferentes dimensiones" },
+            { rank: "Agente de Campo", description: "Especialista en reconocimiento y primera línea de contacto con nuevas realidades" },
+            { rank: "Científico Multiversal", description: "Investigador de anomalías dimensionales y fenómenos cuánticos" },
+            { rank: "Rastreador Temporal", description: "Experto en detectar y seguir rastros a través de líneas temporales" },
+            { rank: "Guardián de Portales", description: "Responsable de la seguridad y estabilidad de los puntos de acceso dimensionales" },
+            { rank: "Diplomático Interdimensional", description: "Mediador y negociador con civilizaciones de otras realidades" },
+            { rank: "Ingeniero de Realidad", description: "Especialista en reparación de fracturas dimensionales y estabilización de portales" },
+            { rank: "Observador Cuántico", description: "Analista de probabilidades y posibles ramificaciones del multiverso" }
+        ];
+
+        // Funciones para Rick y Morty
+        function loadRickAndMorty(page = 1, resetPage = false) {
+            if (resetPage) {
+                page = 1;
+                currentRMPage = 1;
+            }
+
+            const name = $('#rm-filter-name').val();
+            const status = $('#rm-filter-status').val();
+            const species = $('#rm-filter-species').val();
+
+            let url = `/api/multiverse/rickandmorty?page=${page}`;
+            if (name) url += `&name=${encodeURIComponent(name)}`;
+            if (status) url += `&status=${status}`;
+            if (species) url += `&species=${species}`;
+
+            $('#rm-loading').show();
+            $('#rm-grid').empty();
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    $('#rm-loading').hide();
+                    console.log('Rick and Morty data:', data);
+                    
+                    if (data.results && data.results.length > 0) {
+                        currentRMPage = page;
+                        totalRMPages = data.info.pages;
+                        
+                        $('#rm-count').text(`Total: ${data.info.count} personajes`);
+                        $('#rm-page-info').text(`Página ${page} de ${totalRMPages}`);
+                        
+                        data.results.forEach(character => {
+                            const card = createRickAndMortyCard(character);
+                            $('#rm-grid').append(card);
+                        });
+
+                        $('#rm-prev').prop('disabled', page === 1);
+                        $('#rm-next').prop('disabled', page === totalRMPages);
+                    } else {
+                        $('#rm-grid').html('<div class="no-results">No se encontraron personajes</div>');
+                        $('#rm-count').text('Total: 0 personajes');
+                        $('#rm-prev').prop('disabled', true);
+                        $('#rm-next').prop('disabled', true);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#rm-loading').hide();
+                    console.error('Error Rick and Morty:', error, xhr.responseText);
+                    $('#rm-grid').html('<div class="no-results">Error al cargar personajes: ' + error + '</div>');
+                }
+            });
+        }
+
+        function createRickAndMortyCard(character) {
+            return $(`
+                <div class="character-card" onclick="showRickAndMortyDetails(${character.id})">
+                    <img src="${character.image}" alt="${character.name}">
+                    <div class="character-info">
+                        <div class="character-name">${character.name}</div>
+                        <div class="character-universe">Rick and Morty</div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function showRickAndMortyDetails(id) {
+            $.ajax({
+                url: `/api/multiverse/rickandmorty/${id}`,
+                method: 'GET',
+                success: function(character) {
+                    let modalContent = `
+                        <div class="modal-header">
+                            <h2>${character.name}</h2>
+                        </div>
+                        <div class="modal-image">
+                            <img src="${character.image}" alt="${character.name}">
+                        </div>
+                    `;
+
+                    // Mostrar todos los datos
+                    for (let key in character) {
+                        if (key !== 'image') {
+                            let value = character[key];
+                            
+                            if (typeof value === 'object' && value !== null) {
+                                if (Array.isArray(value)) {
+                                    value = value.join(', ') || 'N/A';
+                                } else {
+                                    value = JSON.stringify(value, null, 2);
+                                }
+                            }
+                            
+                            modalContent += `
+                                <div class="detail-item">
+                                    <span class="detail-label">${key}:</span>
+                                    <span class="detail-value">${value}</span>
+                                </div>
+                            `;
+                        }
+                    }
+
+                    $('#modal-body').html(modalContent);
+                    $('#characterModal').fadeIn();
+                }
+            });
+        }
+
+        function clearRickAndMortyFilters() {
+            $('#rm-filter-name').val('');
+            $('#rm-filter-status').val('');
+            $('#rm-filter-species').val('');
+            loadRickAndMorty(1, true);
+        }
+
+        // Funciones para Demon Slayer
+        function loadDemonSlayer(page = 1, applyFilter = false) {
+            const filterName = $('#demonslayer-filter-name').val().toLowerCase();
+            
+            $('#demonslayer-loading').show();
+            $('#demonslayer-grid').empty();
+
+            // Cargar multiples paginas para obtener al menos 20 personajes
+            const pagesToLoad = [1, 2, 3, 4];
+            let allCharacters = [];
+            let completedRequests = 0;
+
+            pagesToLoad.forEach(apiPage => {
+                $.ajax({
+                    url: `/api/multiverse/demonslayer?page=${apiPage}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    timeout: 15000,
+                    success: function(data) {
+                        if (data.content && Array.isArray(data.content)) {
+                            allCharacters = allCharacters.concat(data.content);
+                        }
+                        
+                        completedRequests++;
+                        
+                        // Cuando todas las peticiones terminen
+                        if (completedRequests === pagesToLoad.length) {
+                            $('#demonslayer-loading').hide();
+                            console.log('Demon Slayer total characters loaded:', allCharacters.length);
+                            
+                            let characters = allCharacters;
+                            
+                            // Aplicar filtro local si existe
+                            if (filterName && characters.length > 0) {
+                                characters = characters.filter(c => 
+                                    c.name && c.name.toLowerCase().includes(filterName)
+                                );
+                            }
+                            
+                            // Implementar paginacion local (20 por pagina)
+                            const totalCharacters = characters.length;
+                            const totalPages = Math.ceil(totalCharacters / itemsPerPage);
+                            const startIndex = (page - 1) * itemsPerPage;
+                            const endIndex = startIndex + itemsPerPage;
+                            const charactersToShow = characters.slice(startIndex, endIndex);
+                            
+                            if (charactersToShow.length > 0) {
+                                currentDemonSlayerPage = page;
+                                
+                                $('#demonslayer-count').text(`Total: ${totalCharacters} personajes`);
+                                $('#demonslayer-page-info').text(`Página ${page} de ${totalPages}`);
+                                
+                                charactersToShow.forEach(character => {
+                                    const card = createDemonSlayerCard(character);
+                                    $('#demonslayer-grid').append(card);
+                                });
+
+                                $('#demonslayer-prev').prop('disabled', page === 1);
+                                $('#demonslayer-next').prop('disabled', page >= totalPages);
+                            } else {
+                                $('#demonslayer-grid').html('<div class="no-results">No se encontraron personajes</div>');
+                                $('#demonslayer-count').text('Total: 0 personajes');
+                                $('#demonslayer-prev').prop('disabled', true);
+                                $('#demonslayer-next').prop('disabled', true);
+                            }
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        completedRequests++;
+                        if (completedRequests === pagesToLoad.length) {
+                            $('#demonslayer-loading').hide();
+                            console.error('Error Demon Slayer:', error);
+                            $('#demonslayer-grid').html('<div class="no-results">Error al cargar personajes.</div>');
+                            $('#demonslayer-count').text('Total: 0 personajes');
+                        }
+                    }
+                });
+            });
+        }
+
+        function displayDemonSlayerPage(page) {
+            loadDemonSlayer(page);
+        }
+
+        function createDemonSlayerCard(character) {
+            const name = character.name || 'Unknown';
+            const imageUrl = character.img || 'https://via.placeholder.com/200x300?text=No+Image';
+            
+            return $(`
+                <div class="character-card" onclick='showDemonSlayerDetails(${JSON.stringify(character).replace(/'/g, "&#39;")})'>
+                    <img src="${imageUrl}" alt="${name}">
+                    <div class="character-info">
+                        <div class="character-name">${name}</div>
+                        <div class="character-universe">Demon Slayer</div>
+                    </div>
+                </div>
+            `);
+        }
+
+        function showDemonSlayerDetails(character) {
+            const name = character.name || 'Unknown';
+            let modalContent = `
+                <div class="modal-header">
+                    <h2>${name}</h2>
+                </div>
+            `;
+
+            // Usar la imagen real de la API
+            const imageUrl = character.img || 'https://via.placeholder.com/300x400?text=No+Image';
+            modalContent += `
+                <div class="modal-image">
+                    <img src="${imageUrl}" alt="${name}">
+                </div>
+            `;
+
+            // Mostrar todos los datos
+            for (let key in character) {
+                if (key !== 'img') {
+                    let value = character[key];
+                    
+                    if (typeof value === 'object' && value !== null) {
+                        if (Array.isArray(value)) {
+                            value = value.join(', ') || 'N/A';
+                        } else {
+                            value = JSON.stringify(value, null, 2);
+                        }
+                    }
+                    
+                    if (!value || value === 'undefined') value = 'N/A';
+                    
+                    modalContent += `
+                        <div class="detail-item">
+                            <span class="detail-label">${key}:</span>
+                            <span class="detail-value">${value}</span>
+                        </div>
+                    `;
+                }
+            }
+
+            $('#modal-body').html(modalContent);
+            $('#characterModal').fadeIn();
+        }
+
+        function clearDemonSlayerFilters() {
+            $('#demonslayer-filter-name').val('');
+            loadDemonSlayer(1);
+        }
+
+        // Funciones para Exploradores Multiversales
+        function loadInitialExplorers() {
+            $('#explorers-loading').show();
+            
+            $.ajax({
+                url: '/api/multiverse/explorers?results=10',
+                method: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function(data) {
+                    $('#explorers-loading').hide();
+                    console.log('Explorers data received:', data);
+                    
+                    if (data.results && Array.isArray(data.results)) {
+                        data.results.forEach(user => {
+                            const explorer = createExplorerFromUser(user);
+                            allExplorers.push(explorer);
+                        });
+                        
+                        displayExplorers();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#explorers-loading').hide();
+                    console.error('Error loading explorers:', error);
+                    $('#explorers-grid').html('<div class="no-results">Error al reclutar exploradores.</div>');
+                }
+            });
+        }
+
+        function recruitNewExplorers() {
+            $('#explorers-loading').show();
+            
+            $.ajax({
+                url: '/api/multiverse/explorers?results=1',
+                method: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function(data) {
+                    $('#explorers-loading').hide();
+                    
+                    if (data.results && Array.isArray(data.results)) {
+                        data.results.forEach(user => {
+                            const explorer = createExplorerFromUser(user);
+                            allExplorers.push(explorer);
+                        });
+                        
+                        displayExplorers();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#explorers-loading').hide();
+                    console.error('Error recruiting explorer:', error);
+                }
+            });
+        }
+
+        function recruitMultipleExplorers() {
+            $('#explorers-loading').show();
+            
+            $.ajax({
+                url: '/api/multiverse/explorers?results=5',
+                method: 'GET',
+                dataType: 'json',
+                timeout: 15000,
+                success: function(data) {
+                    $('#explorers-loading').hide();
+                    
+                    if (data.results && Array.isArray(data.results)) {
+                        data.results.forEach(user => {
+                            const explorer = createExplorerFromUser(user);
+                            allExplorers.push(explorer);
+                        });
+                        
+                        displayExplorers();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#explorers-loading').hide();
+                    console.error('Error recruiting explorers:', error);
+                }
+            });
+        }
+
+        function createExplorerFromUser(user) {
+            // Asignar rango aleatorio
+            const rankData = explorerRanks[Math.floor(Math.random() * explorerRanks.length)];
+            
+            return {
+                id: user.login.uuid,
+                name: `${user.name.first} ${user.name.last}`,
+                email: user.email,
+                country: user.location.country,
+                photo: user.picture.large,
+                rank: rankData.rank,
+                description: rankData.description,
+                // Datos adicionales para el modal
+                age: user.dob.age,
+                gender: user.gender,
+                phone: user.phone,
+                city: user.location.city,
+                state: user.location.state,
+                street: `${user.location.street.number} ${user.location.street.name}`,
+                postcode: user.location.postcode,
+                username: user.login.username
+            };
+        }
+
+        function displayExplorers() {
+            $('#explorers-grid').empty();
+            $('#explorers-count').text(`Total: ${allExplorers.length} agentes`);
+            
+            allExplorers.forEach((explorer, index) => {
+                const card = createExplorerCard(explorer, index);
+                $('#explorers-grid').append(card);
+            });
+        }
+
+        function createExplorerCard(explorer, index) {
+            return $(`
+                <div class="character-card">
+                    <img src="${explorer.photo}" alt="${explorer.name}" onclick='showExplorerDetails(${index})' style="cursor: pointer;">
+                    <div class="character-info">
+                        <div class="character-name">${explorer.name}</div>
+                        <div class="character-universe" style="color: #f39c12; font-weight: bold;">${explorer.rank}</div>
+                        <div style="font-size: 0.85em; color: #95a5a6; margin-top: 5px;">
+                            📍 ${explorer.country}<br>
+                            📧 ${explorer.email}
+                        </div>
+                        <div style="font-size: 0.8em; color: #7f8c8d; margin-top: 8px; font-style: italic;">
+                            ${explorer.description}
+                        </div>
+                        <button onclick="removeExplorer(${index})" 
+                                style="margin-top: 10px; background-color: #e74c3c; color: white; border: none; 
+                                       padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9em;">
+                            ❌ Eliminar Agente
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function removeExplorer(index) {
+            if (confirm('¿Estás seguro de eliminar a este explorador?')) {
+                allExplorers.splice(index, 1);
+                displayExplorers();
+            }
+        }
+
+        function showExplorerDetails(index) {
+            const explorer = allExplorers[index];
+            
+            let modalContent = `
+                <div class="modal-header">
+                    <h2>🚀 ${explorer.name}</h2>
+                </div>
+                <div class="modal-image">
+                    <img src="${explorer.photo}" alt="${explorer.name}">
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Rango:</span>
+                    <span class="detail-value" style="color: #f39c12; font-weight: bold;">${explorer.rank}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Descripción:</span>
+                    <span class="detail-value">${explorer.description}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Edad:</span>
+                    <span class="detail-value">${explorer.age} años</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Género:</span>
+                    <span class="detail-value">${explorer.gender === 'male' ? 'Masculino' : 'Femenino'}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${explorer.email}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Teléfono:</span>
+                    <span class="detail-value">${explorer.phone}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Username:</span>
+                    <span class="detail-value">${explorer.username}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">País:</span>
+                    <span class="detail-value">${explorer.country}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Ciudad:</span>
+                    <span class="detail-value">${explorer.city}, ${explorer.state}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Dirección:</span>
+                    <span class="detail-value">${explorer.street}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Código Postal:</span>
+                    <span class="detail-value">${explorer.postcode}</span>
+                </div>
+            `;
+            
+            $('#modal-body').html(modalContent);
+            $('#characterModal').fadeIn();
+        }
+
+        // ============= FUNCIONES PARA GESTIÓN DE PRACTICANTES =============
+        
+        const API_KEY = 'MULTIVERSO_KEY_2024';
+        let practicantes = [];
+        let editandoPracticante = false;
+
+        // Cargar todos los practicantes
+        function cargarPracticantes() {
+            $('#practicantes-loading').show();
+            
+            $.ajax({
+                url: '/api/practicantes',
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': API_KEY
+                },
+                success: function(data) {
+                    $('#practicantes-loading').hide();
+                    practicantes = data;
+                    mostrarPracticantes(practicantes);
+                },
+                error: function(xhr) {
+                    $('#practicantes-loading').hide();
+                    const mensaje = xhr.responseJSON?.error || 'Error al cargar practicantes';
+                    alert('❌ ' + mensaje);
+                }
+            });
+        }
+
+        // Mostrar practicantes en cards
+        function mostrarPracticantes(lista) {
+            $('#practicantes-grid').empty();
+            $('#practicantes-count').text(`Total: ${lista.length} practicantes`);
+            
+            if (lista.length === 0) {
+                $('#practicantes-grid').html('<div class="no-results">No hay practicantes registrados. Haz clic en "Nuevo Practicante" para agregar uno.</div>');
+                return;
+            }
+            
+            lista.forEach(p => {
+                const iniciales = p.nombreCompleto.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                const card = $(`
+                    <div class="character-card" style="cursor: default;">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 120px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3em; font-weight: bold;">
+                            ${iniciales}
+                        </div>
+                        <div class="character-info">
+                            <div class="character-name">${p.nombreCompleto}</div>
+                            <div style="font-size: 0.9em; color: #7f8c8d; margin-top: 5px;">
+                                🎓 ${p.carrera}<br>
+                                🏛️ ${p.universidad}<br>
+                                📧 ${p.email}<br>
+                                🌍 ${p.pais}<br>
+                                <span style="display: inline-block; margin-top: 5px; padding: 3px 10px; border-radius: 15px; font-size: 0.85em; font-weight: bold; ${p.estado === 'Activo' ? 'background: #d4edda; color: #155724;' : 'background: #f8d7da; color: #721c24;'}">
+                                    ${p.estado}
+                                </span>
+                            </div>
+                            <div style="margin-top: 10px; display: flex; gap: 5px;">
+                                <button onclick="editarPracticante(${p.id})" style="flex: 1; background-color: #3498db; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.85em;">
+                                    ✏️ Editar
+                                </button>
+                                <button onclick="eliminarPracticante(${p.id}, '${p.nombreCompleto.replace(/'/g, "\\'")}')" style="flex: 1; background-color: #e74c3c; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 0.85em;">
+                                    🗑️ Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                $('#practicantes-grid').append(card);
+            });
+        }
+
+        // Filtrar por estado
+        function filtrarPorEstado() {
+            const estado = $('#filtro-estado').val();
+            if (estado === '') {
+                mostrarPracticantes(practicantes);
+            } else {
+                const filtrados = practicantes.filter(p => p.estado === estado);
+                mostrarPracticantes(filtrados);
+            }
+        }
+
+        // Mostrar formulario para crear nuevo practicante
+        function mostrarFormularioCrear() {
+            editandoPracticante = false;
+            $('#form-title').text('Nuevo Practicante');
+            $('#practicante-form')[0].reset();
+            $('#practicante-id').val('');
+            $('#formulario-practicante').slideDown();
+            $('html, body').animate({
+                scrollTop: $('#formulario-practicante').offset().top - 100
+            }, 500);
+        }
+
+        // Editar practicante existente
+        function editarPracticante(id) {
+            const practicante = practicantes.find(p => p.id === id);
+            if (!practicante) return;
+            
+            editandoPracticante = true;
+            $('#form-title').text('Editar Practicante');
+            $('#practicante-id').val(practicante.id);
+            $('#nombre-completo').val(practicante.nombreCompleto);
+            $('#carrera').val(practicante.carrera);
+            $('#universidad').val(practicante.universidad);
+            $('#email').val(practicante.email);
+            $('#pais').val(practicante.pais);
+            $('#estado').val(practicante.estado);
+            $('#formulario-practicante').slideDown();
+            $('html, body').animate({
+                scrollTop: $('#formulario-practicante').offset().top - 100
+            }, 500);
+        }
+
+        // Guardar practicante (crear o actualizar)
+        function guardarPracticante(event) {
+            event.preventDefault();
+            
+            const id = $('#practicante-id').val();
+            const datos = {
+                nombreCompleto: $('#nombre-completo').val().trim(),
+                carrera: $('#carrera').val().trim(),
+                universidad: $('#universidad').val().trim(),
+                email: $('#email').val().trim(),
+                pais: $('#pais').val().trim(),
+                estado: $('#estado').val()
+            };
+            
+            const url = editandoPracticante ? `/api/practicantes/${id}` : '/api/practicantes';
+            const metodo = editandoPracticante ? 'PUT' : 'POST';
+            
+            $.ajax({
+                url: url,
+                method: metodo,
+                headers: {
+                    'X-API-KEY': API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(datos),
+                success: function(response) {
+                    alert(editandoPracticante ? '✅ Practicante actualizado exitosamente' : '✅ Practicante creado exitosamente');
+                    cancelarFormulario();
+                    cargarPracticantes();
+                },
+                error: function(xhr) {
+                    const mensaje = xhr.responseJSON?.error || 'Error al guardar practicante';
+                    alert('❌ ' + mensaje);
+                }
+            });
+        }
+
+        // Eliminar practicante
+        function eliminarPracticante(id, nombre) {
+            if (!confirm(`⚠️ ¿Estás seguro de eliminar a ${nombre}? Esta acción no se puede deshacer.`)) {
+                return;
+            }
+            
+            $.ajax({
+                url: `/api/practicantes/${id}`,
+                method: 'DELETE',
+                headers: {
+                    'X-API-KEY': API_KEY
+                },
+                success: function() {
+                    alert('✅ Practicante eliminado exitosamente');
+                    cargarPracticantes();
+                },
+                error: function(xhr) {
+                    const mensaje = xhr.responseJSON?.error || 'Error al eliminar';
+                    alert('❌ ' + mensaje);
+                }
+            });
+        }
+
+        // Cancelar formulario
+        function cancelarFormulario() {
+            $('#formulario-practicante').slideUp();
+            $('#practicante-form')[0].reset();
+            editandoPracticante = false;
+        }
+
+        // Funciones del modal
+        function closeModal() {
+            $('#characterModal').fadeOut();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        $(window).click(function(event) {
+            if (event.target.id === 'characterModal') {
+                closeModal();
+            }
+        });
+
+        // Cargar personajes cuando la pagina este lista
+        $(document).ready(function() {
+            loadRickAndMorty(1);
+            loadDemonSlayer(1);
+            loadInitialExplorers();
+            cargarPracticantes();
+        });
+    </script>
+</body>
+</html>
